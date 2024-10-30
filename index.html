@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: hsl(250, 100%, 90%);
+        }
+        header {
+            padding: 10px;
+            background-color: hsl(250, 100%, 70%);
+            text-align: left;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px hsla(250, 100%, 70%, 15);
+        }
+
+        main {
+           
+           padding: 50px;
+
+       }
+       #forms {
+            display:grid;
+            align-items: center;
+            width: 50%;
+            padding: 50px;
+            margin: 0 auto;
+            background-color: hsl(250, 100%, 80%);
+            border-radius: 10px;
+            box-shadow: 0px 0px 36px 0px hsla(250, 100%, 80%, 0.81);
+
+        }
+        form {
+            margin: 0 auto;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            font-family:Arial, Helvetica, sans-serif
+        }
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 300;
+            font-family:Arial, Helvetica, sans-serif;
+            text-align: center;
+            box-shadow: 0px 0px 36px 0px hsla(250, 100%, 90%, 0.81);
+        }
+        button { 
+            width: 90%;
+            padding: 10px;
+            margin: 5%;
+            border: none;
+            border-radius: 30px;
+            height: 50px;
+            background-color: hsl(250, 100%, 70%);
+            font-size: 1.3rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0px 0px 36px 0px hsla(250, 100%, 70%, 0.81);
+        }
+        button:hover {
+            background-color: hsl(250, 100%, 60%);
+            box-shadow: 0px 0px 36px 0px hsla(250, 100%, 60%, 0.81);
+            cursor: pointer;
+        }
+        
+        #tables {
+            margin-top: 50px;
+        }
+        h2 {
+            font-size: 1.7rem;
+            margin-bottom: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        thead, tbody {
+            box-shadow: 0px 0px 36px 0px hsla(250, 100%, 70%, 0.81);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid hsl(250, 100%, 50%);
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            background-color: hsl(250, 100%, 90%);
+        }
+        th {
+            background-color: hsl(250, 100%, 70%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <h2>Student Data Management</h2>
+</header>
+    <!-- Form to enter student name -->
+     <main>
+        <div id="forms">
+    <form id="studentSearchForm">
+        <label for="studentName">Enter Student Name:</label>
+        <input type="text" id="studentName" required>
+        <br><br>
+        <button type="submit">Load Student Data</button>
+    </form>
+
+    <!-- Form for student details, initially hidden -->
+    <form id="studentDataForm" style="display: none;">
+        <label for="date">Date of Admission:</label>
+        <input type="date" id="date" required>
+        <br><br>
+        <label for="mobile">Mobile No.:</label>
+        <input type="tel" id="mobile" required>
+        <br><br>
+        <label for="feesPaid">Fees Paid:</label>
+        <input type="number" id="feesPaid" required>
+        <br><br>
+        <label for="remainingFee">Remaining Fee:</label>
+        <input type="number" id="remainingFee" required>
+        <br><br>
+        <button type="submit">Save Student Data</button>
+    </form>
+</div>
+<div id="tables">
+    <!-- Table to display student data -->
+    <h2>Student Data</h2>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date of Admission</th>
+                <th>Mobile No.</th>
+                <th>Fees Paid</th>
+                <th>Remaining Fee</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+    <!-- Button to export data to Excel -->
+    <button id="exportBtn">Export All Data to Excel</button>
+</main>
+    <script>
+        let currentStudentName = "";
+
+        // Function to display student data in the table
+        function displayStudentData(student) {
+            const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Clear existing data
+            const newRow = tableBody.insertRow();
+
+            newRow.insertCell(0).textContent = student.name;
+            newRow.insertCell(1).textContent = student.date;
+            newRow.insertCell(2).textContent = student.mobile;
+            newRow.insertCell(3).textContent = student.feesPaid;
+            newRow.insertCell(4).textContent = student.remainingFee;
+        }
+
+        // Load student data if it exists, or show blank form for new entry
+        document.getElementById('studentSearchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            currentStudentName = document.getElementById('studentName').value.trim();
+
+            // Check if student data exists in localStorage
+            const savedData = JSON.parse(localStorage.getItem(currentStudentName));
+
+            if (savedData) {
+                // If data exists, populate the form fields with student data
+                document.getElementById('date').value = savedData.date;
+                document.getElementById('mobile').value = savedData.mobile;
+                document.getElementById('feesPaid').value = savedData.feesPaid;
+                document.getElementById('remainingFee').value = savedData.remainingFee;
+                displayStudentData(savedData);
+            } else {
+                // Clear form for new entry
+                document.getElementById('studentDataForm').reset();
+            }
+
+            // Show the form for editing or adding student data
+            document.getElementById('studentDataForm').style.display = 'block';
+        });
+
+        // Save or update student data
+        document.getElementById('studentDataForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Collect student data from form fields
+            const studentData = {
+                name: currentStudentName,
+                date: document.getElementById('date').value,
+                mobile: document.getElementById('mobile').value,
+                feesPaid: document.getElementById('feesPaid').value,
+                remainingFee: document.getElementById('remainingFee').value
+            };
+
+            // Save data to localStorage with student's name as the key
+            localStorage.setItem(currentStudentName, JSON.stringify(studentData));
+
+            // Update the table to show the saved data
+            displayStudentData(studentData);
+
+            // Clear the search input field
+            document.getElementById('studentSearchForm').reset();
+        });
+
+        // Function to export all student data to CSV (Excel-compatible format)
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const allData = [];
+            
+            // Retrieve all student data from localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const student = JSON.parse(localStorage.getItem(key));
+                allData.push([student.name, student.date, student.mobile, student.feesPaid, student.remainingFee]);
+            }
+
+            // Convert data to CSV format
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Name,Date of Admission,Mobile No.,Fees Paid,Remaining Fee\n"; // Headers
+
+            allData.forEach(row => {
+                csvContent += row.join(",") + "\n"; // Append each row
+            });
+
+            // Create a downloadable link for CSV
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "student_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+
+</body>
+</html>
